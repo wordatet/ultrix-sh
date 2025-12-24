@@ -1,0 +1,14 @@
+# Object files and binaries
+*.o
+sh
+
+# Intermediate test files
+/tmp/sh_stress_tmp
+test.file
+
+# Debug/Editor artifacts
+.gdb_history
+debug.gdb
+core
+*.swp
+*~
