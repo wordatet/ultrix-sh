@@ -4,12 +4,13 @@ static char sccsid[] = "@(#)stak.c	4.1 (Ultrix) 7/2/90";
 #endif
 
 #include	"defs.h"
-#include    <stdlib.h>
+#include <sys/mman.h>
+
+#define STAK_MAX_SIZE (8 * 1024 * 1024) /* 8MB stack limit */
 
 VOID growstak();
 
 STKPTR		stakbot=nullstr;
-static size_t stak_size = 0;
 
 /* ========	storage allocation	======== */
 
@@ -21,13 +22,14 @@ STKPTR	getstak(asize)
 
 	size=round(asize,BYTESPERWORD);
 	
-	/* In a malloc-based port, small stack allocations can just be malloced
-	   if they are intended to be permanent, or we can use our buffer. 
-	   Bourne shell's getstak() is usually for long-term stack items. */
-	
-	if (stakbas == NULL || (staktop + size >= brkend))
+	if (stakbas == NULL)
 	{
-		growstak(staktop + size);
+		growstak(NULL);
+	}
+
+	if (staktop + size >= brkend)
+	{
+		error(nospace);
 	}
 	
 	oldstak=stakbot;
@@ -35,41 +37,35 @@ STKPTR	getstak(asize)
 	return(oldstak);
 }
 
-/* growstak: expand the stack buffer and update all pointers */
+/* growstak: Initial allocation of the fixed-base stack via mmap */
 VOID growstak(ptr)
     STKPTR ptr;
 {
-    size_t old_size = stak_size;
-    size_t new_size = old_size + (BRKINCR * 16); 
-    size_t bot_off = (stakbas) ? (size_t)(stakbot - stakbas) : 0;
-    size_t top_off = (stakbas) ? (size_t)(staktop - stakbas) : 0;
-    
-    /* Ensure new_size is enough for ptr if provided */
-    if (ptr && stakbas && (size_t)(ptr - stakbas) + BRKINCR > new_size)
-    {
-        new_size = (size_t)(ptr - stakbas) + (BRKINCR * 16);
-    }
+    if (stakbas != NULL) return; /* Already initialized */
 
-    STKPTR new_bas = (STKPTR)realloc(stakbas, new_size);
-    if (new_bas == NULL) error(nospace);
+    /* 
+     * We allocate a large fixed-base region via mmap to avoid the 
+     * use-after-realloc issues inherent in the original Bourne shell's 
+     * assumption that the stack never moves.
+     */
+    stakbas = (STKPTR)mmap(NULL, STAK_MAX_SIZE, PROT_READ|PROT_WRITE, 
+                           MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     
-    stakbas = new_bas;
-    stakbot = stakbas + bot_off;
-    staktop = stakbas + top_off;
-    brkend = stakbas + new_size;
-    stak_size = new_size;
-    
-    if (old_size == 0)
+    if (stakbas == MAP_FAILED)
     {
-        stakbot = staktop = stakbas;
+        stakbas = NULL;
+        error(nospace);
     }
+    
+    stakbot = staktop = stakbas;
+    brkend = stakbas + STAK_MAX_SIZE;
 }
 
 STKPTR	locstak()
 {
-	if (stakbas == NULL || (staktop + BRKINCR >= brkend))
+	if (stakbas == NULL)
 	{
-		growstak(staktop);
+		growstak(NULL);
 	}
 	return(stakbot);
 }
@@ -123,5 +119,5 @@ BYTPTR	setbrk(incr)
     {
         growstak(NULL);
     }
-	return (BYTPTR)stakbas;
+	return (BYTPTR)stakbot;
 }
