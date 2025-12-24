@@ -5,6 +5,8 @@ sh
 # Intermediate test files
 /tmp/sh_stress_tmp
 test.file
+stress.sh
+valgrind*.log
 
 # Debug/Editor artifacts
 .gdb_history
