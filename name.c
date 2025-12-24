@@ -325,6 +325,25 @@ VOID	exname(n)
 	FI
 }
 
+LOCAL VOID	freenam_tree(np)
+	REG NAMPTR	np;
+{
+	IF np
+	THEN	freenam_tree(np->namlft);
+		freenam_tree(np->namrgt);
+		sh_free(np->namid);
+		sh_free(np->namval);
+		sh_free(np->namenv);
+		sh_free(np);
+	FI
+}
+
+VOID	freenames()
+{
+	freenam_tree(namep);
+	namep = 0;
+}
+
 VOID	printflg(n)
 	REG NAMPTR		n;
 {

@@ -242,6 +242,7 @@ INT		execute();
 INT		options();
 VOID		settmp();
 VOID		dfault();
+VOID		freenames();
 INT		pathopen();
 INT		chkopen();
 VOID		Ldup();

@@ -118,6 +118,7 @@ done()
 		chktrap();	/* DJL 02 */
 
 	rmtemp(0);
+	freenames();
 	exit(exitval);
 }
 
