@@ -6,6 +6,7 @@ sh
 /tmp/sh_stress_tmp
 test.file
 stress.sh
+stress_extreme.sh
 valgrind*.log
 
 # Debug/Editor artifacts
