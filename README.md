@@ -22,8 +22,8 @@ The port addresses several critical challenges encountered when moving 1990-era 
 
 To build `ultrix-sh` on a modern Linux system:
 
-```sh
-make -f Makefile.linux
+```bash
+make
 ```
 
 The resulting binary `sh` can be run locally:

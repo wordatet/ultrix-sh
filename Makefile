@@ -3,14 +3,15 @@
 
 CROSS_COMPILE ?=
 CC = $(CROSS_COMPILE)gcc
-CFLAGS = -std=gnu89 -O0 -g -I. -include compat.h \
-         -Wno-implicit-int -Wno-implicit-function-declaration -Wno-return-type \
-         -Wno-incompatible-pointer-types -Wno-int-conversion \
+CFLAGS = -std=gnu89 -O0 -g -I. -include compat.h -fcommon \
+         -Werror=implicit-function-declaration -Werror=int-conversion \
+         -Wno-implicit-int -Wno-return-type \
+         -Wno-incompatible-pointer-types \
          -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
 
 OBJS = args.o blok.o builtin.o cmd.o ctype.o error.o expand.o \
        fault.o io.o macro.o main.o msg.o name.o print.o service.o \
-       setbrk.o stak.o string.o word.o xec.o
+       stak.o string.o word.o xec.o
 
 all: sh
 
