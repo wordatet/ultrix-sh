@@ -22,19 +22,19 @@ The port addresses several critical challenges encountered when moving 1990-era 
 
 To build `ultrix-sh` on a modern Linux system:
 
-```bash
-make
+```sh
+make -f Makefile
 ```
 
 The resulting binary `sh` can be run locally:
-```bash
+```sh
 ./sh
 ```
 
 ## Running Tests
 
 A basic stress test is provided to verify variable expansion, pipes, and subshell behavior:
-```bash
+```sh
 # Apply executable bit if needed
 chmod +x stress.sh
 ./stress.sh
